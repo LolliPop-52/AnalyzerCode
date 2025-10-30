@@ -19,61 +19,83 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case ' ' -> State.S;
                         case 'p' -> State.Sp1;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }
                     };
                     break;
                 case Sp1:
                     state = switch (sym) {
                         case 'r' -> State.Sp2;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case Sp2:
                     state = switch (sym) {
                         case 'o' -> State.Sp3;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case Sp3:
                     state = switch (sym) {
                         case 'c' -> State.Sp4;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case Sp4:
                     state = switch (sym) {
                         case 'e' -> State.Sp5;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case Sp5:
                     state = switch (sym) {
                         case 'd' -> State.Sp6;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case Sp6:
                     state = switch (sym) {
                         case 'u' -> State.Sp7;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case Sp7:
                     state = switch (sym) {
                         case 'r' -> State.Sp8;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case Sp8:
                     state = switch (sym) {
                         case 'e' -> State.S1;
-                        default -> State.E;
-                    };
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово PROCEDURE";
+                            yield State.E;
+                        }                    };
                     break;
                 case S1:
                     state = switch (sym) {
                         case ' ' -> State.S2;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидался пробел";
+                            yield State.E;
+                        }
                     };
                     break;
                 case S2:
@@ -87,7 +109,10 @@ public class AnalyzerCode {
                         case ' ' -> State.S3;
                         case ';' -> State.F;
                         case '(' -> State.S4;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидалось ';' или '('";
+                            yield State.E;
+                        }
                     };
                     break;
                 case S4:
@@ -100,14 +125,20 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case ' ' -> State.S5;
                         case ')' -> State.S6;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидалось ')'";
+                            yield State.E;
+                        }
                     };
                     break;
                 case S6:
                     state = switch (sym) {
                         case ' ' -> State.S6;
                         case ';' -> State.F;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидалось ';'";
+                            yield State.E;
+                        }
                     };
                     break;
                 default:
@@ -117,8 +148,9 @@ public class AnalyzerCode {
         }
         if(state == State.E)
             return new Result(nowPos, errorMessage);
-        else if(state == State.F)
+        else if(state == State.F && nowPos == strLen){
             return new Result(-1, "Анализ завершен успешно");
+        }
         else
             return new Result(nowPos, "Неожиданный конец строки");
     }
@@ -134,6 +166,7 @@ public class AnalyzerCode {
                     } else if (sym >= 'a' && sym <= 'z') {
                         nowState = State.Si;
                     } else {
+                        errorMessage = "Ожидался индетификатор";
                         nowState = State.E;
                     }
                     break;
@@ -252,7 +285,7 @@ public class AnalyzerCode {
                     break;
                 case St26:
                     nowState = switch (sym){
-                        case 'g' -> State.Fo;
+                        case 'r' -> State.Fo;
                         default -> State.E;
                     };
                     break;
@@ -392,8 +425,10 @@ public class AnalyzerCode {
             }
             nowPos++;
         }
-        if(nowState == State.E)
+        if(nowState == State.E){
+            errorMessage = "Ожидался тип переменной";
             futureState = State.E;
+        }
         return futureState;
     }
 
@@ -420,6 +455,7 @@ public class AnalyzerCode {
                     break;
                 default:
                     nowState = State.E;
+                    errorMessage = "Ожидался список параметров";
             }
             nowPos++;
         }
@@ -443,13 +479,19 @@ public class AnalyzerCode {
                 case Sd1:
                     nowState = switch (sym){
                         case 'a' -> State.Sd2;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово var";
+                            yield State.E;
+                        }
                     };
                     break;
                 case Sd2:
                     nowState = switch (sym){
                         case 'r' -> State.Sd3;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидалось ключевое слово var";
+                            yield State.E;
+                        }
                     };
                     break;
                 case Sd3:
@@ -462,7 +504,10 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case ' ' -> State.Sd4;
                         case ':' -> State.Sd5;
-                        default -> State.E;
+                        default -> {
+                            errorMessage = "Ожидался символ :";
+                            yield State.E;
+                        }
                     };
                     break;
                 case Sd5:
