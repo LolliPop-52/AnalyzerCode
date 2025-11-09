@@ -21,10 +21,10 @@ public class App {
             if(result.number == -1){
                 System.out.println("Успех \n");
             }else {
-                System.out.println("Ошибка: \"" + result.str + "\" в позиции: " + result.number);
+                System.out.println(" ".repeat(result.number++) + "^");
+                System.out.println("Ошибка: \"" + result.str + "\" в позиции: " + result.number + "\n");
             }
         }
         scanner.close();
     }
-
 }
