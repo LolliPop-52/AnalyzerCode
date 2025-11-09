@@ -525,7 +525,6 @@ public class AnalyzerCode {
             nowPos++;
         }
         if(nowState == State.E){
-            errorMessage = "Ожидался тип переменной";
             futureState = State.E;
             nowPos--;
         }
