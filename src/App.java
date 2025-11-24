@@ -18,11 +18,11 @@ public class App {
                 break;
             AnalyzerCode analyzerCode = new AnalyzerCode(input);
             Result result = analyzerCode.AnalyzerString();
-            if(result.number == -1){
+            if(result.getNumberOfPosError() == -1){
                 System.out.println("Успех \n");
             }else {
-                System.out.println(" ".repeat(result.number++) + "^");
-                System.out.println("Ошибка: \"" + result.str + "\" в позиции: " + result.number + "\n");
+                System.out.println(" ".repeat(result.getNumberOfPosError()) + "\u001B[31m^\u001B[0m");
+                System.out.println(result.getNameError() + " в позиции: " + result.getNumberOfPosError() + "\n");
             }
         }
         scanner.close();

@@ -1,3 +1,6 @@
+import java.awt.*;
+import java.util.HashMap;
+
 public class AnalyzerCode {
 
     public AnalyzerCode(String text){
@@ -6,11 +9,12 @@ public class AnalyzerCode {
         nowPos = 0;
         state = State.S;
     }
+    boolean indFlag;
     String str;
     int nowPos;
     int strLen;
     State state;
-    String errorMessage = "Ошибка";
+    String errorMessage = error("ошибка", 0);
     public Result AnalyzerString() {
         while (state != State.F && nowPos < strLen && state != State.E) {
             char sym = str.charAt(nowPos);
@@ -20,7 +24,7 @@ public class AnalyzerCode {
                         case ' ' -> State.S;
                         case 'p' -> State.Sp1;
                         default -> {
-                            errorMessage = "Ожидался символ 'P' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'P' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }
                     };
@@ -29,7 +33,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'r' -> State.Sp2;
                         default -> {
-                            errorMessage = "Ожидался символ 'R' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'R' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }                    };
                     break;
@@ -37,7 +41,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'o' -> State.Sp3;
                         default -> {
-                            errorMessage = "Ожидался символ 'O' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'O' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }                    };
                     break;
@@ -45,7 +49,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'c' -> State.Sp4;
                         default -> {
-                            errorMessage = "Ожидался символ 'C' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'C' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }                    };
                     break;
@@ -53,7 +57,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'e' -> State.Sp5;
                         default -> {
-                            errorMessage = "Ожидался символ 'E' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'E' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }                    };
                     break;
@@ -61,7 +65,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'd' -> State.Sp6;
                         default -> {
-                            errorMessage = "Ожидался символ 'D' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'D' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }                    };
                     break;
@@ -69,7 +73,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'u' -> State.Sp7;
                         default -> {
-                            errorMessage = "Ожидался символ 'U' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'U' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }                    };
                     break;
@@ -77,7 +81,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'r' -> State.Sp8;
                         default -> {
-                            errorMessage = "Ожидался символ 'R' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'R' для ключевого слова PROCEDURE",0);
                             yield State.E;
                         }                    };
                     break;
@@ -85,7 +89,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case 'e' -> State.S1;
                         default -> {
-                            errorMessage = "Ожидался символ 'E' для ключевого слова PROCEDURE";
+                            errorMessage = error("Ожидался символ 'E' для ключевого слова PROCEDURE", 0);
                             yield State.E;
                         }                    };
                     break;
@@ -93,7 +97,7 @@ public class AnalyzerCode {
                     state = switch (sym) {
                         case ' ' -> State.S2;
                         default -> {
-                            errorMessage = "Ожидался пробел";
+                            errorMessage = error("Ожидался пробел",0);
                             yield State.E;
                         }
                     };
@@ -110,7 +114,11 @@ public class AnalyzerCode {
                         case ';' -> State.F;
                         case '(' -> State.S4;
                         default -> {
-                            errorMessage = "Ожидалось ';' или '('";
+                            if(indFlag){
+                                errorMessage = error("Недопустимый символ для индетификатора", 0);
+                            } else {
+                                errorMessage = error("Ожидалось ';' или '(', или пробел",0);
+                            }
                             yield State.E;
                         }
                     };
@@ -126,7 +134,7 @@ public class AnalyzerCode {
                         case ' ' -> State.S5;
                         case ')' -> State.S6;
                         default -> {
-                            errorMessage = "Ожидалось ')'";
+                            errorMessage = error("Ожидалось ')' или пробел", 0);
                             yield State.E;
                         }
                     };
@@ -136,7 +144,7 @@ public class AnalyzerCode {
                         case ' ' -> State.S6;
                         case ';' -> State.F;
                         default -> {
-                            errorMessage = "Ожидалось ';'";
+                            errorMessage = error("Ожидалось ';' или пробел", 0);
                             yield State.E;
                         }
                     };
@@ -168,7 +176,7 @@ public class AnalyzerCode {
                     } else if (sym >= 'a' && sym <= 'z') {
                         nowState = State.Si;
                     } else {
-                        errorMessage = "Ожидался индетификатор";
+                        errorMessage = error("Недопустимвый символ для индетификатора", 1);
                         nowState = State.E;
                     }
                     break;
@@ -176,6 +184,7 @@ public class AnalyzerCode {
                     if ((sym >= 'a' && sym <= 'z') || (sym >= '0' && sym <= '9')) {
                         nowState = State.Si;
                     } else {
+                        indFlag = true;
                         nowState = State.F;
                         nowPos-=2;
                     }
@@ -239,7 +248,7 @@ public class AnalyzerCode {
                         case 'd' -> State.St51;
                         case 's' -> State.St61;
                         default -> {
-                            errorMessage = "Ожидалось один из следующих символов: 'R', 'I', 'C', 'B', 'D', 'S'";
+                            errorMessage = error("Ожидался один из следующих символов: 'R', 'I', 'C', 'B', 'D', 'S' для типа данных",0);
                             yield State.E;
                         }
                     };
@@ -248,7 +257,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'e' -> State.St12;
                         default -> {
-                            errorMessage = "Ожидалось 'E' для REAL";
+                            errorMessage = error("Ожидалось 'E' для REAL",0);
                             yield State.E;
                         }
                     };
@@ -257,7 +266,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'a' -> State.St13;
                         default -> {
-                            errorMessage = "Ожидалось 'A' для REAL";
+                            errorMessage = error("Ожидалось 'A' для REAL", 0);
                             yield State.E;
                         }
                     };
@@ -266,7 +275,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'l' -> State.Fo;
                         default -> {
-                            errorMessage = "Ожидалось 'L' для REAL";
+                            errorMessage = error("Ожидалось 'L' для REAL", 0);
                             yield State.E;
                         }
                     };
@@ -275,7 +284,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'n' -> State.St22;
                         default -> {
-                            errorMessage = "Ожидалось 'N' для INTEGER";
+                            errorMessage = error("Ожидалось 'N' для INTEGER",0);
                             yield State.E;
                         }
                     };
@@ -284,7 +293,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 't' -> State.St23;
                         default -> {
-                            errorMessage = "Ожидалось 'T' для INTEGER";
+                            errorMessage = error("Ожидалось 'T' для INTEGER",0);
                             yield State.E;
                         }
                     };
@@ -293,7 +302,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'e' -> State.St24;
                         default -> {
-                            errorMessage = "Ожидалось 'E' для INTEGER";
+                            errorMessage = error("Ожидалось 'E' для INTEGER",0);
                             yield State.E;
                         }
                     };
@@ -302,7 +311,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'g' -> State.St25;
                         default -> {
-                            errorMessage = "Ожидалось 'G' для INTEGER";
+                            errorMessage = error("Ожидалось 'G' для INTEGER",0);
                             yield State.E;
                         }
                     };
@@ -311,7 +320,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'e' -> State.St26;
                         default -> {
-                            errorMessage = "Ожидалось 'E' для INTEGER";
+                            errorMessage = error("Ожидалось 'E' для INTEGER",0);
                             yield State.E;
                         }
                     };
@@ -320,7 +329,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'r' -> State.Fo;
                         default -> {
-                            errorMessage = "Ожидалось 'R' для INTEGER";
+                            errorMessage = error("Ожидалось 'R' для INTEGER",0);
                             yield State.E;
                         }
                     };
@@ -329,7 +338,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'h' -> State.St32;
                         default -> {
-                            errorMessage = "Ожидалось 'H' для CHAR";
+                            errorMessage = error("Ожидалось 'H' для CHAR",0);
                             yield State.E;
                         }
                     };
@@ -338,7 +347,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'a' -> State.St33;
                         default -> {
-                            errorMessage = "Ожидалось 'A' для CHAR";
+                            errorMessage = error("Ожидалось 'A' для CHAR",0);
                             yield State.E;
                         }
                     };
@@ -347,7 +356,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'r' -> State.Fo;
                         default -> {
-                            errorMessage = "Ожидалось 'R' для CHAR";
+                            errorMessage = error("Ожидалось 'R' для CHAR", 0);
                             yield State.E;
                         }
                     };
@@ -356,7 +365,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 't' -> State.St42;
                         default -> {
-                            errorMessage = "Ожидалось 'T' для BYTE";
+                            errorMessage = error("Ожидалось 'T' для BYTE", 0);
                             yield State.E;
                         }
                     };
@@ -365,7 +374,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'e' -> State.Fo;
                         default -> {
-                            errorMessage = "Ожидалось 'E' для BYTE";
+                            errorMessage = error("Ожидалось 'E' для BYTE", 0);
                             yield State.E;
                         }
                     };
@@ -375,7 +384,7 @@ public class AnalyzerCode {
                         case 'y' -> State.St41;
                         case 'o' -> State.St71;
                         default -> {
-                            errorMessage = "Ожидалось 'O' для BOOLEAN или 'Y' для BYTE";
+                            errorMessage = error("Ожидалось 'O' для BOOLEAN или 'Y' для BYTE",0);
                             yield State.E;
                         }
                     };
@@ -384,7 +393,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'o' -> State.St52;
                         default -> {
-                            errorMessage = "Ожидалось 'O' для DOUBLE";
+                            errorMessage = error("Ожидалось 'O' для DOUBLE",0);
                             yield State.E;
                         }
                     };
@@ -393,7 +402,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'u' -> State.St53;
                         default -> {
-                            errorMessage = "Ожидалось 'U' для DOUBLE";
+                            errorMessage = error("Ожидалось 'U' для DOUBLE",0);
                             yield State.E;
                         }
                     };
@@ -402,7 +411,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'b' -> State.St54;
                         default -> {
-                            errorMessage = "Ожидалось 'B' для DOUBLE";
+                            errorMessage = error("Ожидалось 'B' для DOUBLE",0);
                             yield State.E;
                         }
                     };
@@ -411,7 +420,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'l' -> State.St55;
                         default -> {
-                            errorMessage = "Ожидалось 'L' для DOUBLE";
+                            errorMessage = error("Ожидалось 'L' для DOUBLE",0);
                             yield State.E;
                         }
                     };
@@ -420,7 +429,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'e' -> State.Fo;
                         default -> {
-                            errorMessage = "Ожидалось 'E' для DOUBLE";
+                            errorMessage = error("Ожидалось 'E' для DOUBLE",0);
                             yield State.E;
                         }
                     };
@@ -429,7 +438,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 't' -> State.St62;
                         default -> {
-                            errorMessage = "Ожидалось 'T' для STRING";
+                            errorMessage = error("Ожидалось 'T' для STRING",0);
                             yield State.E;
                         }
                     };
@@ -438,7 +447,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'r' -> State.St63;
                         default -> {
-                            errorMessage = "Ожидалось 'R' для STRING";
+                            errorMessage = error("Ожидалось 'R' для STRING",0);
                             yield State.E;
                         }
                     };
@@ -447,7 +456,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'i' -> State.St64;
                         default -> {
-                            errorMessage = "Ожидалось 'I' для STRING";
+                            errorMessage = error("Ожидалось 'I' для STRING",0);
                             yield State.E;
                         }
                     };
@@ -456,7 +465,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'n' -> State.St65;
                         default -> {
-                            errorMessage = "Ожидалось 'N' для STRING";
+                            errorMessage = error("Ожидалось 'N' для STRING",0);
                             yield State.E;
                         }
                     };
@@ -465,7 +474,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'g' -> State.Fo;
                         default -> {
-                            errorMessage = "Ожидалось 'G' для STRING";
+                            errorMessage = error("Ожидалось 'G' для STRING",0);
                             yield State.E;
                         }
                     };
@@ -474,7 +483,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'o' -> State.St72;
                         default -> {
-                            errorMessage = "Ожидалось 'O' для BOOLEAN";
+                            errorMessage = error("Ожидалось 'O' для BOOLEAN",0);
                             yield State.E;
                         }
                     };
@@ -483,7 +492,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'l' -> State.St73;
                         default -> {
-                            errorMessage = "Ожидалось 'L' для BOOLEAN";
+                            errorMessage = error("Ожидалось 'L' для BOOLEAN",0);
                             yield State.E;
                         }
                     };
@@ -492,7 +501,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'e' -> State.St74;
                         default -> {
-                            errorMessage = "Ожидалось 'E' для BOOLEAN";
+                            errorMessage = error("Ожидалось 'E' для BOOLEAN",0);
                             yield State.E;
                         }
                     };
@@ -501,7 +510,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'a' -> State.St75;
                         default -> {
-                            errorMessage = "Ожидалось 'A' для BOOLEAN";
+                            errorMessage = error("Ожидалось 'A' для BOOLEAN",0);
                             yield State.E;
                         }
                     };
@@ -510,7 +519,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'n' -> State.Fo;
                         default -> {
-                            errorMessage = "Ожидалось 'N' для BOOLEAN";
+                            errorMessage = error("Ожидалось 'N' для BOOLEAN",0);
                             yield State.E;
                         }
                     };
@@ -554,7 +563,7 @@ public class AnalyzerCode {
                     break;
                 default:
                     nowState = State.E;
-                    errorMessage = "Ожидался список параметров";
+                    errorMessage = error("Ожидался список параметров",0);
             }
             nowPos++;
         }
@@ -581,7 +590,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'a' -> State.Sd2;
                         default -> {
-                            errorMessage = "Ожидалось ключевое слово var";
+                            errorMessage = error("Ожидалось ключевое слово var",0);
                             yield State.E;
                         }
                     };
@@ -590,7 +599,7 @@ public class AnalyzerCode {
                     nowState = switch (sym){
                         case 'r' -> State.Sd3;
                         default -> {
-                            errorMessage = "Ожидалось ключевое слово var";
+                            errorMessage = error("Ожидалось ключевое слово var",0);
                             yield State.E;
                         }
                     };
@@ -606,7 +615,7 @@ public class AnalyzerCode {
                         case ' ' -> State.Sd4;
                         case ':' -> State.Sd5;
                         default -> {
-                            errorMessage = "Ожидался символ :";
+                            errorMessage = error("Ожидался символ ':'",0);
                             yield State.E;
                         }
                     };
@@ -637,4 +646,13 @@ public class AnalyzerCode {
         }
         return futureState;
     }
+    public String error(String nameError, int numError){
+        String startColor = "\u001B[31m";
+        String endColor = "\u001B[0m";
+        String semantic = " Сeмантическая";
+        String syntax = "Синтаксическая";
+        String nameTypeError = numError == 0 ? syntax : semantic;
+        return startColor + nameTypeError + " ошибка: " + endColor + nameError;
+    }
 }
+

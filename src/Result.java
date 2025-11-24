@@ -1,9 +1,20 @@
 public class Result {
-    int number;
-    String str;
+    private final int numberOfPosError;
+    private final String nameError;
+
 
     public Result(int number, String srt) {
-        this.number = number;
-        this.str = srt;
+        this.numberOfPosError = number;
+        this.nameError = srt;
     }
+
+
+    public int getNumberOfPosError() {
+        return numberOfPosError;
+    }
+
+    public String getNameError() {
+        return nameError;
+    }
+
 }
