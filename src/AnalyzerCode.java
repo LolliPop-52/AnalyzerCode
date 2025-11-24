@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AnalyzerCode {
@@ -9,6 +9,10 @@ public class AnalyzerCode {
         nowPos = 0;
         state = State.S;
     }
+    HashMap<String, String> semanticList = new HashMap<>();
+    String typeName = "id";
+    ArrayList<String> listId = new ArrayList<>();
+    String[] types = {"procedure","function","var","real","integer","char","byte","double","string","boolean"};
     boolean indFlag;
     String str;
     int nowPos;
@@ -156,27 +160,33 @@ public class AnalyzerCode {
         }
         if(state == State.E) {
             nowPos--;
-            return new Result(nowPos, errorMessage);
+            return new Result(nowPos, errorMessage, 0);
         }
         else if(state == State.F && nowPos == strLen){
-            return new Result(-1, "Анализ завершен успешно");
+            return new Result(-1, "Анализ завершен успешно", 0);
         }
         else
-            return new Result(nowPos, "Неожиданный конец строки");
+            return new Result(nowPos, "Неожиданный конец строки", 0);
     }
 
     public State identifier(State futureState) {
         State nowState = State.S;
-        while(nowPos < strLen && nowState != State.E && nowState != State.F) {
-            char sym = str.charAt(nowPos);
+        char sym;
+        ArrayList<String> id = new ArrayList<String>();
+        while(nowPos < strLen && nowState != State.E && nowState != State.F && id.size() <= 8) {
+            sym = str.charAt(nowPos);
             switch (nowState) {
                 case S:
                     if (sym == ' ') {
                         nowState = State.S;
                     } else if (sym >= 'a' && sym <= 'z') {
                         nowState = State.Si;
+                    }else if (sym == ':'){
+                        errorMessage =error("Пропушен идентификатор",  1);
+                        nowState = State.E;
+                        nowPos--;
                     } else {
-                        errorMessage = error("Недопустимвый символ для индетификатора", 1);
+                        errorMessage = error("Недопустимвый символ для идентификатора", 1);
                         nowState = State.E;
                     }
                     break;
@@ -192,12 +202,27 @@ public class AnalyzerCode {
                 default:
                     nowState = State.E;
             }
+            if((nowState != State.E) && (nowState != State.F))
+                id.add(Character.toString(sym));
             nowPos++;
-        };
-        if(nowState == State.E){
+        }
+        if(nowState == State.E) {
             futureState = State.E;
             nowPos--;
         }
+        String idStr = String.join("", id);
+        if(idStr.length() > 8){
+            errorMessage = error("Недопустимая длина для идентификатора", 1);
+            futureState = State.E;
+        } else {
+            for (String type : types) {
+                if (idStr.equals(type)) {
+                    errorMessage = error("Недопустимое название для идентификатора", 1);
+                    futureState = State.E;
+                }
+            }
+        }
+        listId.add(idStr);
         return futureState;
     }
 
@@ -236,8 +261,9 @@ public class AnalyzerCode {
 
     public State type(State futureState) {
         State nowState = State.S;
+        char sym;
         while (nowPos < strLen && nowState != State.E && nowState != State.F) {
-            char sym = str.charAt(nowPos);
+            sym = str.charAt(nowPos);
             switch (nowState){
                 case S:
                     nowState = switch (sym){
@@ -273,7 +299,10 @@ public class AnalyzerCode {
                     break;
                 case St13:
                     nowState = switch (sym){
-                        case 'l' -> State.Fo;
+                        case 'l' -> {
+                            typeName = "real";
+                            yield State.Fo;
+                        }
                         default -> {
                             errorMessage = error("Ожидалось 'L' для REAL", 0);
                             yield State.E;
@@ -327,7 +356,10 @@ public class AnalyzerCode {
                     break;
                 case St26:
                     nowState = switch (sym){
-                        case 'r' -> State.Fo;
+                        case 'r' -> {
+                            typeName = "integer";
+                            yield State.Fo;
+                        }
                         default -> {
                             errorMessage = error("Ожидалось 'R' для INTEGER",0);
                             yield State.E;
@@ -354,7 +386,10 @@ public class AnalyzerCode {
                     break;
                 case St33:
                     nowState = switch (sym){
-                        case 'r' -> State.Fo;
+                        case 'r' -> {
+                            typeName = "real";
+                            yield State.Fo;
+                        }
                         default -> {
                             errorMessage = error("Ожидалось 'R' для CHAR", 0);
                             yield State.E;
@@ -372,7 +407,10 @@ public class AnalyzerCode {
                     break;
                 case St42:
                     nowState = switch (sym){
-                        case 'e' -> State.Fo;
+                        case 'e' -> {
+                            typeName = "byte";
+                            yield State.Fo;
+                        }
                         default -> {
                             errorMessage = error("Ожидалось 'E' для BYTE", 0);
                             yield State.E;
@@ -427,7 +465,10 @@ public class AnalyzerCode {
                     break;
                 case St55:
                     nowState = switch (sym){
-                        case 'e' -> State.Fo;
+                        case 'e' -> {
+                            typeName = "double";
+                            yield State.Fo;
+                        }
                         default -> {
                             errorMessage = error("Ожидалось 'E' для DOUBLE",0);
                             yield State.E;
@@ -472,7 +513,10 @@ public class AnalyzerCode {
                     break;
                 case St65:
                     nowState = switch (sym){
-                        case 'g' -> State.Fo;
+                        case 'g' -> {
+                            typeName = "string";
+                            yield State.Fo;
+                        }
                         default -> {
                             errorMessage = error("Ожидалось 'G' для STRING",0);
                             yield State.E;
@@ -517,7 +561,10 @@ public class AnalyzerCode {
                     break;
                 case St75:
                     nowState = switch (sym){
-                        case 'n' -> State.Fo;
+                        case 'n' -> {
+                            typeName = "boolean";
+                            yield State.Fo;
+                        }
                         default -> {
                             errorMessage = error("Ожидалось 'N' для BOOLEAN",0);
                             yield State.E;
@@ -525,8 +572,19 @@ public class AnalyzerCode {
                     };
                     break;
                 case Fo:
-                    nowState = State.F;
+                    for(String nameListId : listId){
+                        semanticList.put(nameListId, typeName);
+                    }
+                    listId = new ArrayList<>();
                     nowPos-=2;
+                    for(String key : semanticList.keySet()) {
+                        if(typeName.equals(key)){
+                            nowState = State.E;
+                            errorMessage = error("Повторяющиеся идентификатор", 1);
+                        } else {
+                            nowState = State.F;
+                        }
+                    }
                     break;
                 default:
                     nowState = State.E;
@@ -616,6 +674,7 @@ public class AnalyzerCode {
                         case ':' -> State.Sd5;
                         default -> {
                             errorMessage = error("Ожидался символ ':'",0);
+                            nowPos--;
                             yield State.E;
                         }
                     };
