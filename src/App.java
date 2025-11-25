@@ -1,4 +1,5 @@
-import java.util.Locale;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class App {
@@ -18,8 +19,20 @@ public class App {
                 break;
             AnalyzerCode analyzerCode = new AnalyzerCode(input);
             Result result = analyzerCode.AnalyzerString();
+            LinkedHashMap<String, String> names =  result.getNames();
             if(result.getNumberOfPosError() == -1){
-                System.out.println("Успех \n");
+                System.out.println("Успех анализ ✔");
+                System.out.println("Семантика:");
+                System.out.println("Идентификатор: " + names.keySet().iterator().next());
+                System.out.println("Идентификаторы параметров:");
+                boolean flagN = false;
+                for (Map.Entry<String, String> entry : names.entrySet()) {
+                    if(!flagN){
+                        flagN = true;
+                    } else {
+                        System.out.println(entry.getKey() + " - " + entry.getValue());
+                    }
+                }
             }else {
                 System.out.println(" ".repeat(result.getNumberOfPosError()) + "\u001B[31m^\u001B[0m");
                 System.out.println(result.getNameError() + " в позиции: " + result.getNumberOfPosError() + "\n");

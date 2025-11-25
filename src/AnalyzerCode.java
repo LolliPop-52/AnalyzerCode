@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class AnalyzerCode {
 
@@ -9,8 +9,9 @@ public class AnalyzerCode {
         nowPos = 0;
         state = State.S;
     }
-    HashMap<String, String> semanticList = new HashMap<>();
+    LinkedHashMap<String, String> semanticList = new LinkedHashMap<>();
     String typeName = "id";
+    ArrayList<String> allListId =new ArrayList<>();
     ArrayList<String> listId = new ArrayList<>();
     String[] types = {"procedure","function","var","real","integer","char","byte","double","string","boolean"};
     boolean indFlag;
@@ -160,13 +161,13 @@ public class AnalyzerCode {
         }
         if(state == State.E) {
             nowPos--;
-            return new Result(nowPos, errorMessage, 0);
+            return new Result(nowPos, errorMessage,semanticList);
         }
         else if(state == State.F && nowPos == strLen){
-            return new Result(-1, "Анализ завершен успешно", 0);
+            return new Result(-1, "Анализ завершен успешно", semanticList);
         }
         else
-            return new Result(nowPos, "Неожиданный конец строки", 0);
+            return new Result(nowPos, "Неожиданный конец строки", semanticList);
     }
 
     public State identifier(State futureState) {
@@ -214,15 +215,30 @@ public class AnalyzerCode {
         if(idStr.length() > 8){
             errorMessage = error("Недопустимая длина для идентификатора", 1);
             futureState = State.E;
+            return futureState;
         } else {
             for (String type : types) {
                 if (idStr.equals(type)) {
                     errorMessage = error("Недопустимое название для идентификатора", 1);
                     futureState = State.E;
+                    return futureState;
                 }
             }
         }
-        listId.add(idStr);
+        if(allListId.isEmpty()){
+            listId.add(idStr);
+            allListId.add((idStr));
+        } else {
+            for (String i : allListId) {
+                if (i.equals(idStr)) {
+                    errorMessage = error("Повторяющиеся имена идентификаторов", 1);
+                    futureState = State.E;
+                    return futureState;
+                }
+            }
+            listId.add(idStr);
+            allListId.add(idStr);
+        }
         return futureState;
     }
 
@@ -577,14 +593,7 @@ public class AnalyzerCode {
                     }
                     listId = new ArrayList<>();
                     nowPos-=2;
-                    for(String key : semanticList.keySet()) {
-                        if(typeName.equals(key)){
-                            nowState = State.E;
-                            errorMessage = error("Повторяющиеся идентификатор", 1);
-                        } else {
-                            nowState = State.F;
-                        }
-                    }
+                    nowState = State.F;
                     break;
                 default:
                     nowState = State.E;

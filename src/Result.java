@@ -1,15 +1,15 @@
-import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 public class Result {
     private final int numberOfPosError;
     private final String nameError;
-    HashMap<String,String> names = new HashMap<>();
+    LinkedHashMap<String,String> names = new LinkedHashMap<>();
 
 
-    public Result(int number, String srt, int lenght) {
+    public Result(int number, String srt, LinkedHashMap<String,String> names) {
         this.numberOfPosError = number;
         this.nameError = srt;
+        this.names = names;
     }
 
 
@@ -20,5 +20,9 @@ public class Result {
 
     public String getNameError() {
         return nameError;
+    }
+
+    public LinkedHashMap<String, String> getNames() {
+        return names;
     }
 }
